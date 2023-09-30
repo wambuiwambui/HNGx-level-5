@@ -7,10 +7,6 @@ from io import BytesIO
 
 app = Flask(__name__)
 
-# Directory to store uploaded videos
-UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 # Configure AWS S3
 AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
