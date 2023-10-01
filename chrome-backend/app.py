@@ -19,9 +19,9 @@ s3 = boto3.client('s3', region_name=S3_REGION, aws_access_key_id=AWS_ACCESS_KEY_
                   aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 
 # Initialize Amazon Transcribe client
-transcribe = boto3.client('transcribe', region_name='your-transcribe-region',
-                        aws_access_key_id='your-aws-access-key-id',
-                        aws_secret_access_key='your-aws-secret-access-key')
+transcribe = boto3.client('transcribe', region_name=S3_REGION,
+                        aws_access_key_id=AWS_ACCESS_KEY_ID,
+                        aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 
 def start_transcription_job(video_filename, s3_url):
     try:
@@ -34,7 +34,7 @@ def start_transcription_job(video_filename, s3_url):
             Media={
                 'MediaFileUri': s3_url
             },
-            OutputBucketName='your-transcribe-output-bucket'
+            OutputBucketName=S3_BUCKET
         )
     except Exception as e:
         print(f"Error starting transcription job: {str(e)}")
@@ -56,12 +56,13 @@ def upload():
         return jsonify({"message": "AWS S3 credentials not configured"}), 401
 
     s3_url = generate_s3_url(S3_BUCKET, video.filename)
+    transcribe_s3_url = generate_transcribed_s3_url(S3_BUCKET, f"transcription-{video.filename}")
 
     # Start transcription job in a separate thread
     transcription_thread = threading.Thread(target=start_transcription_job, args=(video.filename, s3_url))
     transcription_thread.start()
 
-    return jsonify({"video_name": video.filename, "url": s3_url, "transcription_job_started": True}), 202
+    return jsonify({"video_name": video.filename, "url": s3_url, "transcription_job_started": True, "transcribe_url": transcribe_s3_url}), 202
 
 @app.route('/play/<video_filename>')
 def play(video_filename):
@@ -72,5 +73,8 @@ def generate_s3_url(bucket, key):
     s3_url = f"https://{bucket}.s3.amazonaws.com/{key}"
     return s3_url
 
+def generate_transcribed_s3_url(bucket, key):
+    transcribe_s3_url = f"https://{bucket}.s3.amazonaws.com/{key}"
+    return transcribe_s3_url
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
