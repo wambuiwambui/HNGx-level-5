@@ -49,18 +49,9 @@ def start_transcription_job(video_filename):
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    # Check if the 'blob' field is in the request
-    # import pdb; pdb.set_trace()
-    # if 'blob' not in request.files:
-    #     return jsonify({"message": "Please upload a video blob"}), 400
-
-    # Get the binary data from the 'blob' field
+    # Get the stream data
     stream = request.stream
 
-    # # Check if the blob data is empty
-    # if len(stream.read()) == 0:
-    #     return jsonify({"message": "Uploaded blob data is empty"}), 400
-    
     video_filename = generate_unique_filename(".mp4")
 
     # Create an in-memory buffer to store the blob data
