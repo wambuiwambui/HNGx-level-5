@@ -50,7 +50,7 @@ def start_transcription_job(video_filename):
 @app.route('/upload', methods=['POST'])
 def upload():
     # Get the stream data
-    stream = request.stream
+    stream = request.files['video']
 
     video_filename = generate_unique_filename(".mp4")
 
