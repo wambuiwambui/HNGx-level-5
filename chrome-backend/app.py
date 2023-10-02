@@ -49,15 +49,21 @@ def start_transcription_job(video_filename):
 
 @app.route('/upload', methods=['POST'])
 def upload():
+    # Check if the 'blob' field is in the request
+    if 'blob' not in request.files:
+        return jsonify({"message": "Please upload a video blob"}), 400
+
+    # Get the binary data from the 'blob' field
+    blob_data = request.files['blob'][0].stream.read()
+
+    # Check if the blob data is empty
+    if len(blob_data) == 0:
+        return jsonify({"message": "Uploaded blob data is empty"}), 400
     
-    # Get the incoming stream from the request
-    blob_data = request.files["blob"]
-
-    # Create a BytesIO object to store the stream data
-    stream_data = io.BytesIO(blob_data)
-
     video_filename = generate_unique_filename(".mp4")
 
+    # Create an in-memory buffer to store the blob data
+    stream_data = io.BytesIO(blob_data)
 
     # Upload the video to S3
     try:
